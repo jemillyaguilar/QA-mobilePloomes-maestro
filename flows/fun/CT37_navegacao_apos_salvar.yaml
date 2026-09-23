@@ -1,0 +1,37 @@
+appId: ${APP_ID}
+name: "CT37 - Navegacao apos salvar e duplo toque em salvar"
+tags:
+  - build263
+  - P0
+  - FUN
+env:
+  ENTIDADE: Proposta
+---
+# Esperado: retorna a lista/ficha com o registro criado; duplo toque em
+# salvar NAO cria dois registros.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- scrollUntilVisible:
+    element:
+      text: ${SEL_BTN_SALVAR}
+    direction: DOWN
+    timeout: 15000
+# duplo toque deliberado, sem espera entre os dois
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+    repeat: 2
+    delay: 100
+- extendedWaitUntil:
+    notVisible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+# voltou para a listagem com o registro criado
+- assertVisible: ${VALOR_CAMPO_TEXTO}
+- takeScreenshot: build${BUILD}_CT37_apos_salvar
+# ATENCAO: a contagem de registros duplicados exige conferencia manual
+# na listagem ou na web. Ver docs/COBERTURA.md (CT37).

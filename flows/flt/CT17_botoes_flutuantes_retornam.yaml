@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+name: "CT17 - Botoes flutuantes voltam a aparecer ao sair da tela de IA"
+tags:
+  - build262
+  - build263
+  - P0
+  - FLT
+env:
+  ENTIDADE: Proposta
+---
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/assert_sem_botoes_flutuantes.yaml
+- back
+- tapOn:
+    text: ${TXT_CONFIRMA_DESCARTE}
+    optional: true
+# de volta a home, os botoes flutuantes reaparecem
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_BTN_CHECKIN}
+    timeout: 20000
+- assertVisible:
+    id: ${SEL_BTN_CHECKIN}
+- assertVisible:
+    id: ${SEL_BTN_GRAVACAO}
+- takeScreenshot: build${BUILD}_CT17_botoes_retornaram

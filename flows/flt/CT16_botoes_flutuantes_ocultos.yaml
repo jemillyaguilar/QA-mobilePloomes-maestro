@@ -1,0 +1,29 @@
+appId: ${APP_ID}
+name: "CT16 - Botoes flutuantes nativos ficam ocultos na tela gerada por IA"
+tags:
+  - build262
+  - build263
+  - P0
+  - FLT
+env:
+  ENTIDADE: Proposta
+---
+# Requisito confirmado com Hugo em 18/08.
+# Esperado: nenhum botao flutuante nativo (check-in, gravacao) sobreposto
+# ao formulario gerado por IA.
+- runFlow: ../../subflows/login.yaml
+# na home os botoes flutuantes EXISTEM — baseline da comparacao
+- assertVisible:
+    id: ${SEL_BTN_CHECKIN}
+- takeScreenshot: build${BUILD}_CT16_1_baseline_home_com_botoes
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/assert_sem_botoes_flutuantes.yaml
+- takeScreenshot: build${BUILD}_CT16_2_form_ia_sem_botoes
+# tambem tem que continuar oculto depois de rolar o formulario
+- scroll
+- runFlow: ../../subflows/assert_sem_botoes_flutuantes.yaml
+- takeScreenshot: build${BUILD}_CT16_3_apos_scroll_sem_botoes

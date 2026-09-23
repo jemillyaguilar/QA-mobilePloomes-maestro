@@ -1,0 +1,3 @@
+# Copie para config/credenciais.local e preencha. Esse arquivo NAO vai para o git.
+USUARIO=<<usuario@ploomes.com>>
+SENHA=<<senha>>

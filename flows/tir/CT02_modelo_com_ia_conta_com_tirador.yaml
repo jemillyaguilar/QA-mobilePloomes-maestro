@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+name: "CT02 - Modelo COM form IA em conta com Tirador + construtor CPQ IA"
+tags:
+  - build262
+  - P0
+  - TIR
+env:
+  ENTIDADE: Proposta
+---
+# Pre: conta com Tirador de Pedidos E construtor CPQ com IA habilitados;
+#      modelo da entidade COM formulario com IA publicado.
+# Esperado: aparece o formulario construido com IA (nao o Tirador).
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- assertVisible: ${TXT_TITULO_FORM_IA}
+- assertNotVisible: ${TXT_TITULO_TIRADOR}
+- takeScreenshot: build${BUILD}_CT02_form_ia

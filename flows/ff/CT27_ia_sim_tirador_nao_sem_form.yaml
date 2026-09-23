@@ -1,0 +1,28 @@
+appId: ${APP_ID}
+name: "CT27 - IA habilitado / Tirador desabilitado: modelo SEM form IA"
+tags:
+  - build263
+  - P0
+  - FF
+  - bloqueado
+env:
+  ENTIDADE: Proposta
+---
+# !! DEPENDE DO PONTO EM ABERTO 2 DA PAGINA DE CTs !!
+# Sem o Tirador no build, ainda nao esta definido QUAL formulario abre.
+# A premissa deste flow e que abre o formulario padrao atual da entidade.
+# Confirmar com Hugo Oliveira antes de tratar uma falha aqui como bug.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_TITULO_FORM_PADRAO}
+    timeout: 30000
+- assertVisible: ${TXT_TITULO_FORM_PADRAO}
+# na 263 o Tirador nao existe: nao pode aparecer de jeito nenhum
+- assertNotVisible: ${TXT_TITULO_TIRADOR}
+- assertNotVisible: ${TXT_TITULO_FORM_IA}
+- takeScreenshot: build${BUILD}_CT27_form_padrao

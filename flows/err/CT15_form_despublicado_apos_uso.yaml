@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "CT15 - Formulario despublicado ou excluido apos ja ter sido usado"
+tags:
+  - build263
+  - P1
+  - ERR
+  - semiauto
+env:
+  ENTIDADE: Proposta
+  REGISTRO_EXISTENTE: ${VALOR_CAMPO_TEXTO}
+---
+# Pre (MANUAL): registro ja criado com o formulario e, depois, formulario
+# despublicado/excluido na web.
+# Esperado: fallback sem erro fatal; a entidade existente continua abrindo.
+- runFlow: ../../subflows/login.yaml
+# a entidade JA criada tem que continuar abrindo
+- tapOn: ${TXT_MENU_ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${REGISTRO_EXISTENTE}
+    timeout: 30000
+- tapOn: ${REGISTRO_EXISTENTE}
+- assertNotVisible: ${TXT_MSG_ERRO_WEBVIEW}
+- takeScreenshot: build${BUILD}_CT15_registro_existente_abre
+- back
+# e criar nova cai no comportamento padrao
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- assertVisible: ${TXT_TITULO_FORM_PADRAO}
+- takeScreenshot: build${BUILD}_CT15_fallback_form_padrao

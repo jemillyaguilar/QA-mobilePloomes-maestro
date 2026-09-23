@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+name: "CT44 - Botao '+' aparece quando a tela do construtor e definida como home"
+tags:
+  - build263
+  - P2
+  - FLT
+  - semiauto
+---
+# Pre (MANUAL na web): definir uma tela do construtor como home do app.
+# Esperado: o '+' do mobile e exibido e funcional nessa tela.
+- runFlow: ../../subflows/login.yaml
+- assertVisible:
+    id: ${SEL_FAB_NOVO}
+- takeScreenshot: build${BUILD}_CT44_1_fab_visivel_na_home_do_construtor
+- tapOn:
+    id: ${SEL_FAB_NOVO}
+# o '+' tem que de fato abrir algo, nao ser decorativo
+- assertVisible:
+    text: "Nova ${ENTIDADE}"
+    optional: true
+- takeScreenshot: build${BUILD}_CT44_2_fab_funcional

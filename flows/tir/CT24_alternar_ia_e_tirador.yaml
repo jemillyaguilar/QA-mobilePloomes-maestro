@@ -1,0 +1,49 @@
+appId: ${APP_ID}
+name: "CT24 - Alternar na mesma sessao entre entidade com form IA e com Tirador"
+tags:
+  - build262
+  - P0
+  - TIR
+env:
+  ENTIDADE_COM_IA: Proposta
+  ENTIDADE_SEM_IA: Venda
+---
+# Pre: duas entidades na mesma conta, uma com form IA publicado e outra sem.
+# Esperado: ida e volta sem estado residual e sem dados vazando de um
+# formulario para o outro.
+- runFlow: ../../subflows/login.yaml
+
+# 1a volta: entidade COM form IA
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_COM_IA}
+- assertVisible: ${TXT_TITULO_FORM_IA}
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- takeScreenshot: build${BUILD}_CT24_1_form_ia_preenchido
+- back
+- tapOn:
+    text: ${TXT_CONFIRMA_DESCARTE}
+    optional: true
+
+# 2a volta: entidade SEM form IA -> Tirador, e SEM dados residuais
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_SEM_IA}
+- assertVisible: ${TXT_TITULO_TIRADOR}
+- assertNotVisible: ${VALOR_CAMPO_TEXTO}
+- takeScreenshot: build${BUILD}_CT24_2_tirador_limpo
+- back
+- tapOn:
+    text: ${TXT_CONFIRMA_DESCARTE}
+    optional: true
+
+# 3a volta: de volta ao form IA, tambem sem residuo
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_COM_IA}
+- assertVisible: ${TXT_TITULO_FORM_IA}
+- assertNotVisible: ${VALOR_CAMPO_TEXTO}
+- takeScreenshot: build${BUILD}_CT24_3_form_ia_limpo

@@ -1,0 +1,39 @@
+appId: ${APP_ID}
+name: "CT31 - Validacoes do formulario no mobile"
+tags:
+  - build263
+  - P0
+  - FUN
+env:
+  ENTIDADE: Proposta
+---
+# Esperado: obrigatorio vazio BLOQUEIA o salvamento com mensagem;
+# mascaras de moeda, data e decimal se comportam como na web.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+# tenta salvar com o campo obrigatorio vazio
+- scrollUntilVisible:
+    element:
+      text: ${SEL_BTN_SALVAR}
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+- assertVisible: ${TXT_MSG_OBRIGATORIO}
+# o formulario NAO pode ter fechado
+- assertVisible:
+    id: ${SEL_WEBVIEW_CPQ}
+- takeScreenshot: build${BUILD}_CT31_1_bloqueou_obrigatorio
+# preenche e o bloqueio sai
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+- extendedWaitUntil:
+    notVisible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+- takeScreenshot: build${BUILD}_CT31_2_salvou_apos_preencher

@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+name: "CT14 - Modelo com formulario apenas em rascunho (nao publicado)"
+tags:
+  - build263
+  - P0
+  - ERR
+  - semiauto
+env:
+  ENTIDADE: Proposta
+---
+# Pre (MANUAL na web): modelo com formulario de CPQ criado mas NAO publicado.
+# Esperado: mobile nao abre o form com IA; cai no comportamento padrao
+# da entidade, sem erro.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_TITULO_FORM_PADRAO}
+    timeout: 30000
+- assertNotVisible: ${TXT_TITULO_FORM_IA}
+- assertNotVisible: ${TXT_MSG_ERRO_WEBVIEW}
+- takeScreenshot: build${BUILD}_CT14_rascunho_nao_abre_form_ia

@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "CT38 - Formulario grande: abertura, scroll e salvamento"
+tags:
+  - build263
+  - P1
+  - MOB
+env:
+  ENTIDADE: Proposta
+  TIMEOUT_ABERTURA: "15000"
+---
+# Pre: formulario com muitos campos e/ou muitos produtos.
+# Esperado: abertura dentro do timeout, scroll fluido e salvamento sem
+# timeout. TIMEOUT_ABERTURA e o criterio objetivo de performance: se
+# estourar, o CT falha.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: ${TIMEOUT_ABERTURA}
+- takeScreenshot: build${BUILD}_CT38_1_aberto
+- repeat:
+    times: 5
+    commands:
+      - scroll
+- takeScreenshot: build${BUILD}_CT38_2_fim_do_form
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- runFlow: ../../subflows/salvar.yaml
+- takeScreenshot: build${BUILD}_CT38_3_salvo

@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: "CT45 - Comparacao 262 vs 263 no cenario 'modelo sem formulario com IA'"
+tags:
+  - build262
+  - build263
+  - P0
+  - TIR
+env:
+  ENTIDADE: Proposta
+  # 262 -> ${TXT_TITULO_TIRADOR}   |   263 -> ${TXT_TITULO_FORM_PADRAO}
+  TXT_ESPERADO: ${TXT_TITULO_TIRADOR}
+---
+# Executar o MESMO flow nos dois builds, sobrescrevendo TXT_ESPERADO:
+#   262: -e TXT_ESPERADO="<titulo do Tirador>"
+#   263: -e TXT_ESPERADO="<titulo do form padrao>"
+# scripts/run-ct45-comparacao.sh faz isso e nomeia os screenshots por build.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_ESPERADO}
+    timeout: 30000
+- assertVisible: ${TXT_ESPERADO}
+- takeScreenshot: build${BUILD}_CT45_modelo_sem_form_ia

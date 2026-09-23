@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+name: "CT10 - Web view falha ao carregar por falta de conexao"
+tags:
+  - build263
+  - build262
+  - P0
+  - ERR
+env:
+  ENTIDADE: Proposta
+---
+# Esperado: aviso de erro, navegacao NAO trava e as demais funcoes do app
+# seguem utilizaveis.
+- runFlow: ../../subflows/login.yaml
+# corta a rede so na hora de abrir o formulario
+- setAirplaneMode: enabled
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_MSG_ERRO_WEBVIEW}
+    timeout: 30000
+- assertVisible: ${TXT_MSG_ERRO_WEBVIEW}
+- takeScreenshot: build${BUILD}_CT10_aviso_de_erro
+# o app nao pode travar: volta e o resto continua acessivel
+- back
+- assertVisible:
+    id: ${SEL_FAB_NOVO}
+- takeScreenshot: build${BUILD}_CT10_app_nao_travou
+- setAirplaneMode: disabled

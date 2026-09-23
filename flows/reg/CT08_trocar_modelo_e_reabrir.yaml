@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+name: "CT08 - Trocar o modelo associado a entidade e reabrir no mobile"
+tags:
+  - build263
+  - P1
+  - REG
+  - semiauto
+env:
+  ENTIDADE: Proposta
+  TXT_TITULO_FORM_NOVO: ${TXT_TITULO_FORM_IA}
+---
+# Pre (MANUAL na web): trocar o Modelo de Documento da entidade por outro
+# modelo com formulario DIFERENTE, antes de rodar este flow.
+# Esperado: o mobile passa a exibir o formulario do novo modelo.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+# o formulario exibido tem que ser o do modelo NOVO
+- assertVisible: ${TXT_TITULO_FORM_NOVO}
+- takeScreenshot: build${BUILD}_CT08_form_do_modelo_novo

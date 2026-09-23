@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+name: "CT09 - Persistir apenas os dados desejados (calculos efemeros nao persistem)"
+tags:
+  - build263
+  - P0
+  - REG
+env:
+  ENTIDADE: Proposta
+---
+# Pre: formulario com calculos efemeros e campos marcados para persistir.
+# Esperado: ao reabrir, so os campos marcados para persistir voltam
+# preenchidos; os calculos efemeros nao.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+# preenche tambem o campo de calculo efemero
+- tapOn:
+    id: ${SEL_CAMPO_EFEMERO}
+- inputText: ${VALOR_CAMPO_EFEMERO}
+- hideKeyboard
+- takeScreenshot: build${BUILD}_CT09_antes_de_salvar
+- runFlow: ../../subflows/salvar.yaml
+# reabre o registro salvo
+- tapOn:
+    text: ${VALOR_CAMPO_TEXTO}
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+- assertVisible: ${VALOR_CAMPO_TEXTO}
+- assertNotVisible: ${VALOR_CAMPO_EFEMERO}
+- takeScreenshot: build${BUILD}_CT09_apos_reabrir

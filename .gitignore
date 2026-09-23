@@ -1,0 +1,7 @@
+resultados/
+.maestro/tests/
+*.log
+screenshots/
+
+# credenciais locais (usuario/senha da conta de teste)
+config/credenciais.local

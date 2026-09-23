@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+name: "subflow: abrir nova entidade"
+tags:
+  - subflow
+env:
+  ENTIDADE: Proposta
+---
+# Abre o fluxo de criacao da entidade recebida em ${ENTIDADE}.
+# Os dois tapOn sao optional porque o app usa "Nova Proposta/Venda" (f)
+# e "Novo Documento" (m) — apenas um dos dois existe na tela.
+- tapOn:
+    id: ${SEL_FAB_NOVO}
+- tapOn:
+    text: "Nova ${ENTIDADE}"
+    optional: true
+- tapOn:
+    text: "Novo ${ENTIDADE}"
+    optional: true

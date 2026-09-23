@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: "CT34 - Entidade sem modelo associado"
+tags:
+  - build263
+  - P1
+  - FUN
+  - semiauto
+env:
+  ENTIDADE: Documento
+---
+# Pre (MANUAL na web): entidade SEM Modelo de Documento associado.
+# Esperado: comportamento padrao, sem erro e SEM tentar abrir web view.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- assertNotVisible:
+    id: ${SEL_WEBVIEW_CPQ}
+- assertNotVisible: ${TXT_MSG_ERRO_WEBVIEW}
+- assertVisible: ${TXT_TITULO_FORM_PADRAO}
+- takeScreenshot: build${BUILD}_CT34_sem_modelo_sem_webview

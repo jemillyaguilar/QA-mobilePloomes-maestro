@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+name: "CT26 - IA habilitado / Tirador desabilitado: modelo COM form IA"
+tags:
+  - build263
+  - P0
+  - FF
+env:
+  ENTIDADE: Proposta
+---
+# Pre: conta com construtor CPQ IA habilitado e SEM Tirador;
+#      modelo com formulario publicado.
+# Esperado: exibe o formulario construido com IA.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- assertVisible: ${TXT_TITULO_FORM_IA}
+- assertNotVisible: ${TXT_TITULO_TIRADOR}
+- takeScreenshot: build${BUILD}_CT26_form_ia

@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+name: "CT30 - Editar pelo mobile uma entidade ja criada pelo formulario"
+tags:
+  - build263
+  - P0
+  - FUN
+env:
+  ENTIDADE: Proposta
+  VALOR_EDITADO: QA HC-29 editado
+---
+# Esperado: reabre com os dados gravados, permite alterar e salvar
+# novamente SEM duplicar o registro.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- runFlow: ../../subflows/salvar.yaml
+# reabre o registro para editar
+- tapOn: ${VALOR_CAMPO_TEXTO}
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+- assertVisible: ${VALOR_CAMPO_TEXTO}
+- takeScreenshot: build${BUILD}_CT30_1_reaberto_com_dados
+- tapOn:
+    id: ${SEL_CAMPO_TEXTO}
+- eraseText
+- inputText: ${VALOR_EDITADO}
+- hideKeyboard
+- runFlow: ../../subflows/salvar.yaml
+- assertVisible: ${VALOR_EDITADO}
+- takeScreenshot: build${BUILD}_CT30_2_editado_sem_duplicar

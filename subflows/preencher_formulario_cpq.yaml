@@ -1,0 +1,15 @@
+appId: ${APP_ID}
+name: "subflow: preencher formulario CPQ"
+tags:
+  - subflow
+---
+# Preenche o minimo para um salvamento valido.
+# Campos adicionais por CT devem ser preenchidos no proprio flow.
+- tapOn:
+    id: ${SEL_CAMPO_OBRIGATORIO}
+- inputText: ${VALOR_CAMPO_TEXTO}
+- hideKeyboard
+- tapOn:
+    id: ${SEL_CAMPO_TEXTO}
+- inputText: ${VALOR_CAMPO_TEXTO}
+- hideKeyboard

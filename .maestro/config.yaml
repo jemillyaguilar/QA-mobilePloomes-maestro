@@ -1,0 +1,9 @@
+# Configuração da suíte Maestro — CPQ em Branco / Web View / Tirador de Pedidos
+# Referência: HC-29  |  Confluence: Casos de Teste Complementares — CPQ em Branco
+flows:
+  - "../flows/**"
+
+# Executa os subflows apenas quando chamados por runFlow (nunca isolados)
+includeTags: []
+excludeTags:
+  - subflow

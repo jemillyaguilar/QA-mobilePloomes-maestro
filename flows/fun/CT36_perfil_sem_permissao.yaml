@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+name: "CT36 - Perfil sem permissao de criar a entidade"
+tags:
+  - build263
+  - P1
+  - FUN
+env:
+  ENTIDADE: Venda
+  USUARIO: ${USUARIO_SEM_PERMISSAO}
+  SENHA: ${SENHA_SEM_PERMISSAO}
+---
+# Pre: usuario com perfil SEM permissao de criar Venda.
+# Passar as credenciais alternativas com:
+#   -e USUARIO_SEM_PERMISSAO=... -e SENHA_SEM_PERMISSAO=...
+# Esperado: nao consegue criar/salvar; mensagem adequada e SEM abrir
+# formulario orfao.
+- runFlow: ../../subflows/login.yaml
+- tapOn:
+    id: ${SEL_FAB_NOVO}
+# ou a opcao nao aparece, ou aparece e barra com mensagem
+- tapOn:
+    text: "Nova ${ENTIDADE}"
+    optional: true
+- assertNotVisible:
+    id: ${SEL_WEBVIEW_CPQ}
+- takeScreenshot: build${BUILD}_CT36_sem_permissao

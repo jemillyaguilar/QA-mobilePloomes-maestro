@@ -1,0 +1,49 @@
+appId: ${APP_ID}
+name: "CT23 - Fluxo completo do Tirador de Pedidos em modelo sem form IA"
+tags:
+  - build262
+  - P0
+  - TIR
+env:
+  ENTIDADE: Proposta
+  QUANTIDADE: "2"
+  DESCONTO: "10"
+---
+# Pre: conta do CT03; catalogo de produtos com precos cadastrados.
+# Esperado: busca, adicao, quantidade, desconto e totais funcionam e o
+# registro e salvo integro. Este e o CT que garante que o Tirador nao
+# quebrou com a entrada do formulario com IA.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- assertVisible: ${TXT_TITULO_TIRADOR}
+# busca e adiciona produto
+- tapOn:
+    id: ${SEL_BUSCA_PRODUTO}
+- inputText: ${NOME_PRODUTO}
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      text: ${NOME_PRODUTO}
+    timeout: 20000
+- tapOn: ${NOME_PRODUTO}
+# quantidade
+- tapOn:
+    id: ${SEL_CAMPO_QTD}
+- eraseText
+- inputText: ${QUANTIDADE}
+- hideKeyboard
+# desconto
+- tapOn:
+    id: ${SEL_CAMPO_DESCONTO}
+- eraseText
+- inputText: ${DESCONTO}
+- hideKeyboard
+# o total tem que recalcular — valor conferido na evidencia
+- assertVisible:
+    id: ${SEL_TOTAL}
+- takeScreenshot: build${BUILD}_CT23_total_recalculado
+- runFlow: ../../subflows/salvar.yaml
+- takeScreenshot: build${BUILD}_CT23_pedido_salvo

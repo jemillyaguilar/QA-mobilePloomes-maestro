@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+name: "subflow: salvar"
+tags:
+  - subflow
+---
+- scrollUntilVisible:
+    element:
+      text: ${SEL_BTN_SALVAR}
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+- extendedWaitUntil:
+    notVisible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000

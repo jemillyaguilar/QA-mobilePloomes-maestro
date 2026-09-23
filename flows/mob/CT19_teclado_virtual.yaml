@@ -1,0 +1,34 @@
+appId: ${APP_ID}
+name: "CT19 - Teclado virtual nao cobre o campo em foco"
+tags:
+  - build263
+  - P0
+  - MOB
+env:
+  ENTIDADE: Proposta
+---
+# Esperado: o teclado nao cobre o campo em foco (a tela rola ate ele).
+# O TIPO de teclado (numerico x texto) nao e verificavel por assert —
+# conferir no screenshot CT19_2.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+# campo no fim do formulario: e onde o teclado costuma cobrir
+- scrollUntilVisible:
+    element:
+      id: ${SEL_CAMPO_EFEMERO}
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: ${SEL_CAMPO_EFEMERO}
+# com o teclado aberto, o campo em foco tem que continuar visivel
+- assertVisible:
+    id: ${SEL_CAMPO_EFEMERO}
+- takeScreenshot: build${BUILD}_CT19_1_campo_visivel_com_teclado
+- inputText: ${VALOR_CAMPO_EFEMERO}
+- takeScreenshot: build${BUILD}_CT19_2_tipo_de_teclado
+- hideKeyboard
+- assertVisible: ${VALOR_CAMPO_EFEMERO}

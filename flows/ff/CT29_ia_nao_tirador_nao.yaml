@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: "CT29 - IA desabilitado / Tirador desabilitado"
+tags:
+  - build262
+  - build263
+  - P1
+  - FF
+env:
+  ENTIDADE: Proposta
+---
+# Pre: conta sem os dois recursos.
+# Esperado: fluxo antigo de criacao intacto.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- assertVisible: ${TXT_TITULO_FORM_PADRAO}
+- assertNotVisible: ${TXT_TITULO_FORM_IA}
+- assertNotVisible: ${TXT_TITULO_TIRADOR}
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- runFlow: ../../subflows/salvar.yaml
+- takeScreenshot: build${BUILD}_CT29_fluxo_antigo_ok

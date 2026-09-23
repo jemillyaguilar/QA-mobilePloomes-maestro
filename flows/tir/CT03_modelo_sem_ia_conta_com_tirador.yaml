@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: "CT03 - Modelo SEM form IA em conta com Tirador + construtor CPQ IA"
+tags:
+  - build262
+  - P0
+  - TIR
+env:
+  ENTIDADE: Proposta
+---
+# Pre: mesma conta do CT02; modelo da entidade SEM formulario com IA.
+# Esperado: aparece o formulario do novo Tirador de Pedidos.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_TITULO_TIRADOR}
+    timeout: 30000
+- assertVisible: ${TXT_TITULO_TIRADOR}
+- assertNotVisible: ${TXT_TITULO_FORM_IA}
+- takeScreenshot: build${BUILD}_CT03_tirador

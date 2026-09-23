@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: "CT04 - Abrir e salvar formulario de CPQ em branco: Proposta"
+tags:
+  - build263
+  - P0
+  - REG
+env:
+  ENTIDADE: Proposta
+---
+# Pre: Proposta com modelo que tem formulario de CPQ em branco publicado.
+# Esperado: formulario abre na web view e o registro e salvo na estrutura
+# nativa do Ploomes com todos os dados preenchidos.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- takeScreenshot: build${BUILD}_CT04_form_aberto
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- runFlow: ../../subflows/salvar.yaml
+# confirma que o registro criado aparece na listagem da entidade
+- extendedWaitUntil:
+    visible:
+      text: ${VALOR_CAMPO_TEXTO}
+    timeout: 30000
+- takeScreenshot: build${BUILD}_CT04_registro_salvo

@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "CT35 - Duas entidades com modelos diferentes na mesma conta"
+tags:
+  - build263
+  - P1
+  - FUN
+env:
+  ENTIDADE_A: Proposta
+  ENTIDADE_B: Venda
+  TXT_FORM_A: ${TXT_TITULO_FORM_IA}
+  TXT_FORM_B: ${TXT_TITULO_FORM_PADRAO}
+---
+# Esperado: cada entidade abre o SEU formulario, sem troca nem cache cruzado.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_A}
+- assertVisible: ${TXT_FORM_A}
+- assertNotVisible: ${TXT_FORM_B}
+- takeScreenshot: build${BUILD}_CT35_1_entidade_a
+- back
+- tapOn:
+    text: ${TXT_CONFIRMA_DESCARTE}
+    optional: true
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_B}
+- assertVisible: ${TXT_FORM_B}
+- assertNotVisible: ${TXT_FORM_A}
+- takeScreenshot: build${BUILD}_CT35_2_entidade_b

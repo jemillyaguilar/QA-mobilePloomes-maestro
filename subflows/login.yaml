@@ -1,0 +1,34 @@
+appId: ${APP_ID}
+name: "subflow: login"
+tags:
+  - subflow
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# login-submit se repete em "Entrar" e "Entrar com UK": sempre id + texto
+- assertVisible:
+    id: ${SEL_LOGIN_BOTAO_ID}
+    text: ${SEL_LOGIN_BOTAO}
+- tapOn:
+    id: ${SEL_LOGIN_EMAIL}
+- inputText: ${USUARIO}
+- hideKeyboard
+- tapOn:
+    id: ${SEL_LOGIN_SENHA}
+- inputText: ${SENHA}
+- hideKeyboard
+- tapOn:
+    id: ${SEL_LOGIN_BOTAO_ID}
+    text: ${SEL_LOGIN_BOTAO}
+# o modal Novidades pode demorar a subir depois do login
+- extendedWaitUntil:
+    visible: "Novidades|Início"
+    timeout: 30000
+- runFlow: fechar_novidades.yaml
+# aguarda a home carregar antes de seguir
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_FAB_NOVO}
+    timeout: 30000

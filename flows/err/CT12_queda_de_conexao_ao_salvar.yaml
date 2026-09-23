@@ -1,0 +1,45 @@
+appId: ${APP_ID}
+name: "CT12 - Queda de conexao durante o preenchimento e ao salvar"
+tags:
+  - build263
+  - P0
+  - ERR
+env:
+  ENTIDADE: Proposta
+---
+# Esperado: mensagem clara; nenhum dado perdido silenciosamente nem
+# gravado pela metade.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- takeScreenshot: build${BUILD}_CT12_1_preenchido_com_rede
+# derruba a rede com o formulario preenchido
+- setAirplaneMode: enabled
+- scrollUntilVisible:
+    element:
+      text: ${SEL_BTN_SALVAR}
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+- extendedWaitUntil:
+    visible:
+      text: ${TXT_MSG_ERRO_WEBVIEW}
+    timeout: 30000
+- takeScreenshot: build${BUILD}_CT12_2_erro_ao_salvar
+# os dados preenchidos tem que continuar na tela, nao podem sumir
+- assertVisible: ${VALOR_CAMPO_TEXTO}
+- takeScreenshot: build${BUILD}_CT12_3_dados_preservados
+- setAirplaneMode: disabled
+# com a rede de volta, o salvamento tem que concluir sem duplicar
+- tapOn:
+    text: ${SEL_BTN_SALVAR}
+- extendedWaitUntil:
+    notVisible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+- takeScreenshot: build${BUILD}_CT12_4_salvo_apos_reconectar

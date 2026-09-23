@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+name: "CT01 - Abrir formulario de CPQ em branco pelo mobile (smoke)"
+tags:
+  - build263
+  - P1
+  - GER
+env:
+  ENTIDADE: Proposta
+---
+# Pre: entidade com modelo que tem formulario de CPQ com IA publicado.
+# Esperado: app abre o formulario gerado por IA dentro da web view.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- takeScreenshot: build${BUILD}_CT01_form_ia_aberto

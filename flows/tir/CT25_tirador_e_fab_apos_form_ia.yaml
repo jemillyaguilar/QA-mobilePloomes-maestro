@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "CT25 - Tirador e botao '+' seguem funcionais apos abrir e fechar form IA"
+tags:
+  - build262
+  - P0
+  - TIR
+env:
+  ENTIDADE_COM_IA: Proposta
+  ENTIDADE_SEM_IA: Venda
+---
+# Pre: conta do CT24.
+# Esperado: depois de abrir e FECHAR a web view do form IA, o '+' continua
+# respondendo e o Tirador continua acessivel.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_COM_IA}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- back
+- tapOn:
+    text: ${TXT_CONFIRMA_DESCARTE}
+    optional: true
+# o '+' tem que continuar existindo e respondendo
+- assertVisible:
+    id: ${SEL_FAB_NOVO}
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE_SEM_IA}
+- assertVisible: ${TXT_TITULO_TIRADOR}
+- takeScreenshot: build${BUILD}_CT25_tirador_ok_apos_form_ia

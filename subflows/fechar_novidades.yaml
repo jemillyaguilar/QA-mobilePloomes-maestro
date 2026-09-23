@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+name: "subflow: fechar modal Novidades"
+tags:
+  - subflow
+---
+# Modal de 3 slides que aparece após o login (visto na 265).
+# O X usa header-right-button, que também é o botão de IA da home,
+# então avança pelos textos em vez de tocar no X.
+- runFlow:
+    when:
+      visible: "Novidades"
+    commands:
+      - tapOn: "Próximo"
+      - tapOn: "Próximo"
+      - tapOn: "Vamos lá"
+      - assertNotVisible: "Novidades"

@@ -1,0 +1,11 @@
+appId: ${APP_ID}
+name: "subflow: botoes flutuantes ocultos"
+tags:
+  - subflow
+---
+# Requisito HC-29 (decisao com Hugo em 18/08): botoes flutuantes nativos
+# ficam ocultos em QUALQUER tela gerada por IA.
+- assertNotVisible:
+    id: ${SEL_BTN_CHECKIN}
+- assertNotVisible:
+    id: ${SEL_BTN_GRAVACAO}

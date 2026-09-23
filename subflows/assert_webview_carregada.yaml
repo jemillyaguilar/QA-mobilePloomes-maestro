@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: "subflow: web view carregada"
+tags:
+  - subflow
+---
+# Garante que a web view abriu de fato e nao ficou em tela branca.
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_WEBVIEW_CPQ}
+    timeout: 30000
+- assertVisible:
+    id: ${SEL_WEBVIEW_CPQ}
+# a web view precisa ter conteudo, nao apenas o container
+- assertVisible: ${TXT_TITULO_FORM_IA}

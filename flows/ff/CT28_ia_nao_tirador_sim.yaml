@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: "CT28 - IA desabilitado / Tirador habilitado"
+tags:
+  - build262
+  - P1
+  - FF
+env:
+  ENTIDADE: Proposta
+---
+# Pre: conta com Tirador e SEM construtor CPQ IA.
+# Esperado: Tirador funciona sem qualquer alteracao de comportamento.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- assertVisible: ${TXT_TITULO_TIRADOR}
+- assertNotVisible: ${TXT_TITULO_FORM_IA}
+- takeScreenshot: build${BUILD}_CT28_tirador_sem_ia

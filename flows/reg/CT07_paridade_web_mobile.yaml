@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: "CT07 - Formulario criado/ajustado na web se comporta igual no mobile"
+tags:
+  - build263
+  - P1
+  - REG
+  - semiauto
+env:
+  ENTIDADE: Proposta
+---
+# Pre (MANUAL): formulario de CPQ criado/ajustado pela web e publicado.
+# Este flow cobre o lado mobile e gera os screenshots para a comparacao
+# visual com a web. A comparacao em si e manual — ver docs/COBERTURA.md.
+- runFlow: ../../subflows/login.yaml
+- runFlow:
+    file: ../../subflows/abrir_nova_entidade.yaml
+    env:
+      ENTIDADE: ${ENTIDADE}
+- runFlow: ../../subflows/assert_webview_carregada.yaml
+- takeScreenshot: build${BUILD}_CT07_topo_do_form
+- scroll
+- takeScreenshot: build${BUILD}_CT07_meio_do_form
+- scroll
+- takeScreenshot: build${BUILD}_CT07_fim_do_form
+# a logica de preenchimento tem que se comportar como na web
+- runFlow: ../../subflows/preencher_formulario_cpq.yaml
+- runFlow: ../../subflows/salvar.yaml

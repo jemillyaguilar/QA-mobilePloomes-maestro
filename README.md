@@ -1,0 +1,104 @@
+# Automação Maestro — CPQ em Branco / Web View / Tirador de Pedidos
+
+Suíte de testes E2E mobile para a história [HC-29](https://ploomes.atlassian.net/browse/HC-29),
+cobrindo os casos de teste da página
+[Casos de Teste Complementares — CPQ em Branco](https://ploomes.atlassian.net/wiki/spaces/ENGPROD/pages/401276930/).
+
+## Os builds
+
+| Build | Tirador de Pedidos | Papel na suíte |
+| --- | --- | --- |
+| **10.5.0 (263)** | sem | Bateria **principal**: CPQ em branco ponta a ponta, erros, mobile-específico, matriz de FF |
+| **10.5.0 (262)** | com | **Visualização e não-regressão**: roteamento IA vs Tirador e garantia de que o Tirador não quebrou |
+| **9.12.0 (265)** | a confirmar | Build em uso no mapeamento de seletores (`config/env.265`). Roda em emulador x86_64; a 262 não roda (`libreactnativemmkv.so` quebrado na fatia x86_64) |
+
+A separação é por tag: cada flow tem `build262`, `build263` ou os dois.
+
+## Estrutura
+
+```
+flows/          um arquivo por CT, agrupado pela sigla da suíte
+  ger/  tir/  reg/  err/  flt/  mob/  ff/  fun/
+subflows/       blocos reutilizáveis (login, abrir entidade, salvar, asserts)
+config/         env.262 / env.263 / env.265 — massa e seletores por build
+                credenciais.local.example — modelo do arquivo de usuário/senha
+scripts/        runners
+docs/           COBERTURA.md (mapa CT → flow) e SELETORES.md (o que preencher)
+```
+
+## Antes de rodar
+
+1. **Instalar o Maestro.** Não está instalado nesta máquina. No Windows o
+   caminho suportado é via WSL:
+   ```bash
+   curl -Ls "https://get.maestro.mobile.dev" | bash
+   ```
+   Conferir o método atual em https://docs.maestro.dev — o instalador muda.
+
+2. **adb no PATH** (para Android). Também não está no PATH aqui; fica em
+   `%LOCALAPPDATA%\Android\Sdk\platform-tools`.
+
+3. **Credenciais.** Copiar `config/credenciais.local.example` para
+   `config/credenciais.local` e preencher usuário e senha. Esse arquivo
+   está no `.gitignore` e nunca vai para o repositório.
+
+4. **Preencher o `config/env.<build>`.** Todo `<<valor>>` precisa ser
+   substituído — ver `docs/SELETORES.md`. O runner falha de propósito se
+   sobrar algum placeholder.
+
+5. **Descobrir os seletores** com `maestro studio` no app rodando.
+
+## Rodar
+
+```bash
+./scripts/run.sh 263           # bateria principal completa
+./scripts/run.sh 263 P0        # só os P0 da 263
+./scripts/run.sh 262           # não-regressão do Tirador
+./scripts/run.sh 262 TIR       # só o grupo TIR
+./scripts/run.sh 265           # build 265 (mapeamento atual)
+
+./scripts/run-ct45-comparacao.sh 262    # CT45: rodar nos dois builds
+./scripts/run-ct45-comparacao.sh 263
+
+./scripts/run-matriz-ios-android.sh     # CT21: paridade entre SOs
+```
+
+Um flow isolado:
+
+```bash
+maestro test --no-reinstall-driver flows/reg/CT04_abrir_salvar_proposta.yaml -e APP_ID=... -e USUARIO=...
+```
+
+### Se o `appId` não interpolar
+
+Os flows usam `appId: ${APP_ID}`. Se a versão instalada do Maestro não
+interpolar esse campo do header, fixe o valor literal em todos os arquivos:
+
+```bash
+./scripts/set-app-id.sh com.exemplo.ploomes
+```
+
+## Tags disponíveis
+
+- Build: `build262`, `build263`
+- Prioridade: `P0`, `P1`, `P2`
+- Grupo: `GER`, `TIR`, `REG`, `ERR`, `FLT`, `MOB`, `FF`, `FUN`
+- Situação: `semiauto` (pré-condição manual na web), `bloqueado` (depende de decisão de produto), `android` (só Android)
+- `subflow` — sempre excluída; subflows não rodam isolados
+
+## Cobertura
+
+**34 dos 45 CTs têm flow**; 11 seguem manuais por limitação real do Maestro
+(injeção de erro HTTP, expiração de token, avaliação visual, CTs de web).
+O mapa completo, com o motivo de cada um, está em
+[`docs/COBERTURA.md`](docs/COBERTURA.md).
+
+## Pendências que travam execução
+
+1. **CT27 depende de decisão de produto** — sem Tirador na 263, qual
+   formulário abre? Ponto em aberto 2 da página de CTs, a confirmar com
+   Hugo Oliveira. O flow assume "formulário padrão da entidade".
+2. **Seletores** — provavelmente vários elementos ainda não têm `testID`.
+   Os 5 prioritários estão listados no fim de `docs/SELETORES.md`.
+3. **Contas de teste** — a matriz de FF exige 4 combinações de habilitação
+   (IA sim/não × Tirador sim/não) e um usuário sem permissão de criar Venda.
