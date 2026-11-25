@@ -7,3 +7,6 @@ flows:
 includeTags: []
 excludeTags:
   - subflow
+  # flows bloqueados (decisao de produto ou referencia pendente) nao rodam
+  # na pasta inteira; para rodar um deles, chamar o arquivo direto
+  - bloqueado

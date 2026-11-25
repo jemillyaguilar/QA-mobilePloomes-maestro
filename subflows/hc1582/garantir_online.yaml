@@ -1,0 +1,31 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - sai do modo off-line se o app reabriu nele"
+tags: [subflow]
+---
+# Com o app reaberto em modo off-line, o aviso "Sair do modo offline" nao
+# aparece (25/11, build 284): desliga a chave "Modo offline" do menu lateral.
+# o aviso aparece alguns segundos depois da Inicio
+- extendedWaitUntil:
+    visible: "Modo off-line est. ativo"
+    timeout: 8000
+    optional: true
+- runFlow:
+    when:
+      visible: "Modo off-line est. ativo"
+    commands:
+      - tapOn:
+          id: tab-bar-button-home
+      - tapOn:
+          id: header-left-button
+      - waitForAnimationToEnd
+      # chave "Modo offline" do menu lateral (sem id na arvore; coordenada do
+      # Pixel_7_4k com o app em modo off-line). Pedir testID ao time do app.
+      - tapOn:
+          point: "71%,35%"
+      - extendedWaitUntil:
+          visible: "Pend.ncias off-line"
+          timeout: 30000
+      # fecha o menu lateral tocando fora dele (o menu ocupa ~80% da largura)
+      - tapOn:
+          point: "90%,50%"
+      - waitForAnimationToEnd

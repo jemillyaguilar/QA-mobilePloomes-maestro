@@ -1,0 +1,58 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - abre cliente (ONDE=clientes) ou negocio/card (ONDE=negocios, FUNIL) pelo NOME"
+tags: [subflow]
+---
+# NOME e FUNIL sao regex: no Windows o Maestro troca acentos, entao usar "." no lugar
+# da letra acentuada (ex.: "QA HC-1582 Neg.cio", "P.s-Vendas").
+- runFlow:
+    when:
+      true: ${ONDE == 'clientes'}
+    commands:
+      - tapOn:
+          id: tab-bar-button-clients
+      - waitForAnimationToEnd:
+          timeout: 5000
+      # lupa do cabecalho (o header-right-button da listagem tem 2 icones e a
+      # lupa nao tem id; coordenada do Pixel_7_4k). Pedir testID ao time do app.
+      - tapOn:
+          point: "89%,9%"
+      - inputText: ${NOME_BUSCA}
+      - hideKeyboard
+      - extendedWaitUntil:
+          visible: ${NOME}
+          timeout: 20000
+      - tapOn: ${NOME}
+- runFlow:
+    when:
+      true: ${ONDE == 'negocios'}
+    commands:
+      - tapOn:
+          id: tab-bar-button-deals
+      - waitForAnimationToEnd:
+          timeout: 5000
+      # se a aba reabrir um funil (com ou sem busca), volta para a lista "Funis"
+      - tapOn:
+          id: close-header-search-button
+          optional: true
+      - runFlow:
+          when:
+            notVisible: "Funis"
+          commands:
+            - tapOn:
+                id: header-left-button
+            - waitForAnimationToEnd
+      - tapOn: "${FUNIL}, .*"
+      - waitForAnimationToEnd:
+          timeout: 5000
+      # busca do funil (lupa do cabecalho, sem id; coordenada do Pixel_7_4k). A ordem dos cards muda a cada
+      # sincronizacao, entao rolar a coluna nao e confiavel. Sem hideKeyboard:
+      # no Android ele vira "voltar" e fecha o funil.
+      - tapOn:
+          point: "89%,9%"
+      - inputText: ${NOME_BUSCA}
+      - extendedWaitUntil:
+          visible: ${NOME}
+          timeout: 20000
+      - tapOn: ${NOME}
+- waitForAnimationToEnd:
+    timeout: 5000

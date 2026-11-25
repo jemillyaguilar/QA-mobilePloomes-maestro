@@ -1,0 +1,95 @@
+appId: ${APP_ID}
+name: "CEN-003 - Anexo off-line continua depois de fechar o app (CT-SIN-003)"
+tags: [hc1582, P2, BORDA]
+---
+# Executado em 24/11/2026 (build 284): fechar e reabrir em modo aviao manteve o
+# login e o anexo pendente; sincronizou ao sair do modo off-line. Passou.
+# Independente dos outros cenarios: parte do negocio com o relatorio-visita.pdf.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 120000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+      ARQUIVO: ${ARQ_PDF}
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar neg.cio"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_B}
+- tapOn:
+    id: header-right-button
+- extendedWaitUntil:
+    visible: "Possui dados n.o sincronizados"
+    timeout: 15000
+- scrollUntilVisible:
+    element: ".*${ARQ_B}.*"
+    direction: DOWN
+    timeout: 15000
+# fecha o app por completo e reabre sem limpar dados, ainda em modo aviao
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 120000
+# o app pode reabrir ja em modo off-line (sem o "Ativar modo offline"):
+# o subflow trata os dois casos
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- assertVisible: "Possui dados n.o sincronizados"
+- scrollUntilVisible:
+    element: ".*${ARQ_B}.*"
+    direction: DOWN
+    timeout: 20000
+- assertNotVisible: ".*${ARQ_PDF}.*"
+- takeScreenshot: b${BUILD}_CEN003_reaberto_offline
+# volta ao topo: o aviso de pendencia fica no cabecalho da ficha
+- scrollUntilVisible:
+    element: ${NEGOCIO_NOME}
+    direction: UP
+    timeout: 20000
+- assertVisible: "Possui dados n.o sincronizados"
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "off"
+- extendedWaitUntil:
+    notVisible: "Possui dados n.o sincronizados"
+    timeout: 60000
+- scrollUntilVisible:
+    element: ".*${ARQ_B}.*"
+    direction: DOWN
+    timeout: 20000

@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - na ficha aberta, edita, anexa imagem + PDF e salva"
+tags: [subflow]
+---
+# Opcoes do registro (cliente ou negocio) > "Editar Cliente" / "Editar negocio"
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar (Cliente|neg.cio)"
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow:
+    file: anexar_no_campo.yaml
+    env:
+      TIPO: imagem
+- runFlow:
+    file: anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_PDF}
+- takeScreenshot: b${BUILD}_${PASSO}_antes_de_salvar
+# salvar = botao da direita do cabecalho do formulario
+- tapOn:
+    id: header-right-button
+- waitForAnimationToEnd:
+    timeout: 8000

@@ -1,0 +1,64 @@
+appId: ${APP_ID}
+name: "CEN-006 - Anexar off-line pela secao Anexos do registro de interacao (CT-ANX-006)"
+tags: [hc1582, P2]
+---
+# O app (284) nao tem aba "Anexos" no cliente nem no negocio. Decisao da QA em
+# 25/11/2026: o CT-ANX-006 cobre a secao "Anexos" (botao +) do registro de
+# interacao, criado off-line no negocio e no cliente.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 120000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+
+# negocio
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- runFlow:
+    file: ../../subflows/hc1582/registro_com_anexo.yaml
+    env:
+      ARQUIVO: ${ARQ_ANEXOS}
+      PASSO: CEN006_1_negocio
+- takeScreenshot: b${BUILD}_CEN006_1_negocio_salvo
+- tapOn:
+    id: header-left-button
+
+# cliente
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+- runFlow:
+    file: ../../subflows/hc1582/registro_com_anexo.yaml
+    env:
+      ARQUIVO: ${ARQ_ANEXOS}
+      PASSO: CEN006_2_cliente
+- takeScreenshot: b${BUILD}_CEN006_2_cliente_salvo
+
+# sincroniza ao sair do modo off-line (comportamento esperado, resposta da duvida 3).
+# A pendencia de cada registro foi conferida no aviso "Dados ainda nao
+# sincronizados!" (registro_com_anexo). A ficha nao tem o "Possui dados nao
+# sincronizados" para um registro novo, entao a espera por ele sumir nao provaria
+# nada aqui: a sincronizacao e conferida no web.
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "off"
+- waitForAnimationToEnd:
+    timeout: 15000
+- takeScreenshot: b${BUILD}_CEN006_3_sincronizado
+# Conferencia no web: os dois registros no Historico com o arquivo-A.pdf.

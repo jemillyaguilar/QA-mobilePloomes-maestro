@@ -1,0 +1,79 @@
+appId: ${APP_ID}
+name: "CEN-002 - Remover anexo off-line antes de sincronizar (CT-SIN-002)"
+tags: [hc1582, P2]
+---
+# Executado em 24/11/2026 (build 284) com o cliente partindo de arquivo-B.pdf:
+# A anexado e salvo off-line, depois limpo e trocado pelo relatorio. No web,
+# o log de modificacoes nao tem o arquivo-A: so B -> relatorio. Passou.
+# Independente dos outros cenarios: prepara o cliente com o arquivo-B.pdf.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 120000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+      ARQUIVO: ${ARQ_B}
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar Cliente"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_A}
+- tapOn:
+    id: header-right-button
+- extendedWaitUntil:
+    visible: ${ARQ_A}
+    timeout: 15000
+# remove o A ("Limpar selecao") e anexa o relatorio
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar Cliente"
+- scrollUntilVisible:
+    element: ${ARQ_A}
+    direction: UP
+- tapOn: ${ARQ_A}
+- tapOn: "Limpar sele..o"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_PDF}
+- tapOn:
+    id: header-right-button
+- extendedWaitUntil:
+    visible: ${ARQ_PDF}
+    timeout: 15000
+- assertNotVisible: ${ARQ_A}
+- takeScreenshot: b${BUILD}_CEN002_offline_trocado
+# a pendencia tem de existir antes de sair do modo off-line; senao o
+# notVisible abaixo passaria sem sincronizacao nenhuma
+- assertVisible: "Possui dados n.o sincronizados"
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "off"
+- extendedWaitUntil:
+    notVisible: "Possui dados n.o sincronizados"
+    timeout: 60000
+- assertVisible: ${ARQ_PDF}
+# Web: Modificacoes do cliente sem nenhuma edicao com o arquivo-A.

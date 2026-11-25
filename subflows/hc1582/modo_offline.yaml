@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - entra (ESTADO=on) ou sai (ESTADO=off) do modo off-line do app"
+tags: [subflow]
+---
+# So o modo aviao NAO basta: o app mostra "Problemas de conexao" e a busca fica
+# vazia ate o usuario tocar em "Ativar modo offline". Pre: Contatos e Negocios
+# baixados em Menu > Configuracoes off-line.
+- runFlow:
+    when:
+      true: ${ESTADO == 'on'}
+    commands:
+      - setAirplaneMode: enabled
+      # se o app ja estiver em modo off-line, o "Ativar" nao aparece
+      - extendedWaitUntil:
+          visible: "(Ativar modo offline|Modo off-line est. ativo)"
+          timeout: 30000
+      - tapOn:
+          text: "Ativar modo offline"
+          optional: true
+      - extendedWaitUntil:
+          visible: "Modo off-line est. ativo"
+          timeout: 15000
+# Com a conexao de volta o app mostra "Conexao disponivel - Sair do modo offline"
+# e sincroniza depois do toque: comportamento esperado (duvida 3, 25/11/2026).
+- runFlow:
+    when:
+      true: ${ESTADO == 'off'}
+    commands:
+      - setAirplaneMode: disabled
+      - extendedWaitUntil:
+          visible: "Sair do modo offline"
+          timeout: 60000
+      - tapOn: "Sair do modo offline"
+      - waitForAnimationToEnd:
+          timeout: 15000
