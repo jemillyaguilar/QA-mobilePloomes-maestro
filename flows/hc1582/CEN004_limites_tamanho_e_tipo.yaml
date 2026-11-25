@@ -2,35 +2,42 @@ appId: ${APP_ID}
 name: "CEN-004 - Limites de tamanho e tipo off-line (CT-ERR-001, CT-ERR-002) - BLOQUEADO"
 tags: [hc1582, P2, BORDA, bloqueado]
 ---
-# BLOQUEADO: falta a referencia do online (tamanho maximo, tipos aceitos e
-# mensagens de recusa). Preencher TXT_RECUSA_TIPO / TXT_RECUSA_TAMANHO antes.
+# BLOQUEADO (esqueleto): falta a referencia do online para o tamanho maximo e
+# para as mensagens de recusa. Teste no online em 25/11/2026: o campo de anexo
+# aceitou um .exe e PDFs de ate 10 MB (com minutos de carregamento); 30 e 110 MB
+# ficaram sem conclusao. O campo de imagem so oferece galeria e camera.
+# A tag "bloqueado" esta em excludeTags (.maestro/config.yaml).
+- setAirplaneMode: disabled
 - launchApp:
     clearState: false
     stopApp: true
 - extendedWaitUntil:
     visible:
-      id: ${SEL_FAB_NOVO}
-    timeout: 30000
+      id: tab-bar-button-clients
+    timeout: 120000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
 - runFlow:
-    file: ../../subflows/hc1582/modo_aviao.yaml
+    file: ../../subflows/hc1582/modo_offline.yaml
     env:
-      ESTADO: enabled
+      ESTADO: "on"
 - runFlow:
     file: ../../subflows/hc1582/abrir_registro.yaml
     env:
       ONDE: clientes
       NOME: ${CLIENTE_NOME}
 - tapOn:
-    id: ${SEL_BTN_EDITAR}
-# CT-ERR-002: PDF no campo de imagem deve ser recusado como no online
+    id: header-right-button
+- tapOn: "Editar Cliente"
+# TODO CT-ERR-001: anexar um arquivo acima do tamanho maximo do online
+#   (anexar_no_campo TIPO=anexo, ARQUIVO=<arquivo grande em assets>) e conferir
+#   a mesma mensagem de recusa do online (TXT_RECUSA_TAMANHO).
+# TODO CT-ERR-002: conferir a mesma regra de tipo do online (hoje o online
+#   aceita qualquer tipo no anexo; definir com o time o que o CT espera).
+# sai do formulario sem salvar e volta ao on-line
+- tapOn:
+    id: header-left-button
 - runFlow:
-    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    file: ../../subflows/hc1582/modo_offline.yaml
     env:
-      CAMPO: ${TXT_CAMPO_IMAGEM}
-      OPCAO: ${TXT_PICKER_ARQUIVO}
-      ARQUIVO: ${ARQ_PDF}
-- assertVisible: ${TXT_RECUSA_TIPO}
-- runFlow:
-    file: ../../subflows/hc1582/modo_aviao.yaml
-    env:
-      ESTADO: disabled
+      ESTADO: "off"

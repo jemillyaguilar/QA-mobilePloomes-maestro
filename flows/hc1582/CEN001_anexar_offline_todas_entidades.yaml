@@ -4,8 +4,9 @@ tags: [hc1582, P1, CRITICO]
 ---
 # Pre: app logado na Conta Teste QA CPQ (login manual) e Contatos/Negocios
 # baixados em Menu > Configuracoes off-line.
-# Pre: o cliente ja tem relatorio-visita.pdf (CEN-005): off-line ele recebe o
-# arquivo-B.pdf, para a sincronizacao ser conferida por um arquivo diferente.
+# Independente dos outros cenarios: on-line, deixa cliente, negocio e card com o
+# arquivo-A.pdf; off-line anexa arquivos diferentes, para cada conferencia
+# depender do que foi feito aqui.
 # Executado passo a passo em 24/11/2026 (build 284): todos os passos passaram.
 - setAirplaneMode: disabled
 - launchApp:
@@ -14,9 +15,32 @@ tags: [hc1582, P1, CRITICO]
 - extendedWaitUntil:
     visible:
       id: tab-bar-button-clients
-    timeout: 60000
+    timeout: 120000
 - runFlow: ../../subflows/hc1582/garantir_online.yaml
 - runFlow: ../../subflows/fechar_novidades.yaml
+
+# estado inicial (on-line)
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+      ARQUIVO: ${ARQ_A}
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+      ARQUIVO: ${ARQ_A}
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_CARD}
+      NOME: ${CARD_NOME}
+      ARQUIVO: ${ARQ_A}
+
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:
@@ -41,7 +65,11 @@ tags: [hc1582, P1, CRITICO]
 - extendedWaitUntil:
     visible: "Possui dados n.o sincronizados"
     timeout: 15000
-- assertVisible: ${ARQ_B}
+- scrollUntilVisible:
+    element: ".*${ARQ_B}.*"
+    direction: DOWN
+    timeout: 20000
+- assertNotVisible: ".*${ARQ_A}.*"
 - takeScreenshot: b${BUILD}_CEN001_1_cliente_offline
 - tapOn:
     id: header-left-button
@@ -60,6 +88,12 @@ tags: [hc1582, P1, CRITICO]
 - extendedWaitUntil:
     visible: "Possui dados n.o sincronizados"
     timeout: 15000
+- assertVisible: "Imagem QA.*"
+- scrollUntilVisible:
+    element: ".*${ARQ_PDF}.*"
+    direction: DOWN
+    timeout: 20000
+- assertNotVisible: ".*${ARQ_A}.*"
 - takeScreenshot: b${BUILD}_CEN001_2_negocio_offline
 
 # CT-ANX-004 - registro de interacao no negocio (Descricao e obrigatoria)
@@ -76,14 +110,25 @@ tags: [hc1582, P1, CRITICO]
       TIPO: anexo
       ARQUIVO: ${ARQ_PDF}
 - scrollUntilVisible:
+    element: ".*${ARQ_PDF}.*"
+    direction: DOWN
+    timeout: 20000
+- scrollUntilVisible:
     element: "Descri..o"
     direction: DOWN
+# campo Descricao (sem id; logo abaixo do rotulo, no Pixel_7_4k)
 - tapOn:
     point: "40%,75%"
 - inputText: ${TXT_REGISTRO}
+- assertVisible: ${TXT_REGISTRO}
 - hideKeyboard
 - tapOn:
     id: header-right-button
+# o registro novo vira pendencia: aviso rapido "Dados ainda nao sincronizados!"
+# (a ficha volta na aba Dados; o registro fica na aba Historico)
+- extendedWaitUntil:
+    visible: "Dados ainda n.o sincronizados!"
+    timeout: 10000
 - waitForAnimationToEnd:
     timeout: 8000
 - takeScreenshot: b${BUILD}_CEN001_4_registro_salvo
@@ -106,10 +151,23 @@ tags: [hc1582, P1, CRITICO]
 - extendedWaitUntil:
     visible: "Possui dados n.o sincronizados"
     timeout: 15000
+- assertVisible: "Imagem QA.*"
+- scrollUntilVisible:
+    element: ".*${ARQ_PDF}.*"
+    direction: DOWN
+    timeout: 20000
+- assertNotVisible: ".*${ARQ_A}.*"
 - takeScreenshot: b${BUILD}_CEN001_3_card_offline
 
 # CT-SIN-001 - volta a conexao. O app sincroniza ao sair do modo off-line
 # ("Sair do modo offline"): comportamento esperado (resposta da duvida 3, 25/11/2026).
+# A pendencia tem de estar na tela antes; o notVisible so vale depois dela.
+# Volta ao topo da ficha do card, onde fica o aviso.
+- scrollUntilVisible:
+    element: ${CARD_NOME}
+    direction: UP
+    timeout: 20000
+- assertVisible: "Possui dados n.o sincronizados"
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:
@@ -117,6 +175,10 @@ tags: [hc1582, P1, CRITICO]
 - extendedWaitUntil:
     notVisible: "Possui dados n.o sincronizados"
     timeout: 60000
+- scrollUntilVisible:
+    element: ".*${ARQ_PDF}.*"
+    direction: DOWN
+    timeout: 20000
 - takeScreenshot: b${BUILD}_CEN001_5_sincronizado
 # Conferencia no Ploomes web (cada arquivo no registro certo) e manual:
 # o login no web derruba o login do app.

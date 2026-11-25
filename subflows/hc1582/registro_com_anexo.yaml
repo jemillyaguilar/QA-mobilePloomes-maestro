@@ -39,5 +39,11 @@ tags: [subflow]
 - takeScreenshot: b${BUILD}_${PASSO}_antes_de_salvar
 - tapOn:
     id: header-right-button
+# o registro novo nao marca a ficha com "Possui dados nao sincronizados" (so a
+# edicao do proprio registro marca); a pendencia aparece neste aviso, que some
+# em alguns segundos
+- extendedWaitUntil:
+    visible: "Dados ainda n.o sincronizados!"
+    timeout: 10000
 - waitForAnimationToEnd:
     timeout: 8000

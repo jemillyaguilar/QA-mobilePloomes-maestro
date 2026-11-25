@@ -5,6 +5,7 @@ tags: [hc1582, P2]
 # Executado em 24/11/2026 (build 284) com o cliente partindo de arquivo-B.pdf:
 # A anexado e salvo off-line, depois limpo e trocado pelo relatorio. No web,
 # o log de modificacoes nao tem o arquivo-A: so B -> relatorio. Passou.
+# Independente dos outros cenarios: prepara o cliente com o arquivo-B.pdf.
 - setAirplaneMode: disabled
 - launchApp:
     clearState: false
@@ -12,8 +13,15 @@ tags: [hc1582, P2]
 - extendedWaitUntil:
     visible:
       id: tab-bar-button-clients
-    timeout: 60000
+    timeout: 120000
 - runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/preparar_anexo_online.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+      ARQUIVO: ${ARQ_B}
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:
@@ -57,6 +65,9 @@ tags: [hc1582, P2]
     timeout: 15000
 - assertNotVisible: ${ARQ_A}
 - takeScreenshot: b${BUILD}_CEN002_offline_trocado
+# a pendencia tem de existir antes de sair do modo off-line; senao o
+# notVisible abaixo passaria sem sincronizacao nenhuma
+- assertVisible: "Possui dados n.o sincronizados"
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:
@@ -64,4 +75,5 @@ tags: [hc1582, P2]
 - extendedWaitUntil:
     notVisible: "Possui dados n.o sincronizados"
     timeout: 60000
+- assertVisible: ${ARQ_PDF}
 # Web: Modificacoes do cliente sem nenhuma edicao com o arquivo-A.

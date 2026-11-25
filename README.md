@@ -113,12 +113,27 @@ Cenários da história [HC-1582](https://ploomes.atlassian.net/browse/HC-1582)
 MAESTRO=~/.maestro-cli/maestro/bin/maestro.bat ./scripts/run-hc1582.sh CEN001
 ```
 
+- **Ordem:** os cenários são independentes e podem rodar em qualquer ordem.
+  Cada um começa on-line, sai do modo off-line se o app reabriu nele
+  (`garantir_online`) e deixa o anexo do registro com um arquivo conhecido
+  (`preparar_anexo_online`), diferente do que vai anexar. Assim, nenhuma
+  conferência passa por causa do que uma execução anterior deixou salvo.
+- **Sincronização:** antes de sair do modo off-line, cada cenário confere que
+  o aviso "Possui dados não sincronizados" está na tela, e só depois espera
+  ele sumir.
+- **Coordenadas:** os toques por coordenada (lupa das listagens, chave
+  "Modo offline" do menu, "+" da seção Anexos, campo Descrição) só valem no
+  Pixel_7_4k. Esses elementos não têm testID; o pedido ao time do app está
+  em aberto.
+- **CEN004:** é um esqueleto com TODO. A tag `bloqueado` está em `excludeTags`
+  da `.maestro/config.yaml`, então ele não roda com a pasta inteira.
+
 | Cenário | CTs | Situação (25/11/2026) |
 | --- | --- | --- |
 | CEN001 | ANX-001..004, SIN-001 | passa (a sincronização acontece ao sair do modo off-line, que é o esperado) |
 | CEN002 | SIN-002 | passa |
 | CEN003 | SIN-003 | passa |
-| CEN004 | ERR-001, ERR-002 | bloqueado: falta a referência do online (tamanho máximo e mensagens) |
+| CEN004 | ERR-001, ERR-002 | bloqueado (esqueleto): falta a referência do online (tamanho máximo e mensagens) |
 | CEN005 | OBS-001 | passa |
 | CEN006 | ANX-006 | passa (seção "Anexos" do registro de interação, no negócio e no cliente) |
 

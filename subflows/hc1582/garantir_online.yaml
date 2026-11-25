@@ -18,12 +18,14 @@ tags: [subflow]
       - tapOn:
           id: header-left-button
       - waitForAnimationToEnd
-      # chave "Modo offline" (sem id na arvore)
+      # chave "Modo offline" do menu lateral (sem id na arvore; coordenada do
+      # Pixel_7_4k com o app em modo off-line). Pedir testID ao time do app.
       - tapOn:
           point: "71%,35%"
       - extendedWaitUntil:
           visible: "Pend.ncias off-line"
           timeout: 30000
+      # fecha o menu lateral tocando fora dele (o menu ocupa ~80% da largura)
       - tapOn:
           point: "90%,50%"
       - waitForAnimationToEnd

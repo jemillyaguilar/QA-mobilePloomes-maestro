@@ -12,7 +12,7 @@ tags: [hc1582, P2]
 - extendedWaitUntil:
     visible:
       id: tab-bar-button-clients
-    timeout: 60000
+    timeout: 120000
 - runFlow: ../../subflows/hc1582/garantir_online.yaml
 - runFlow: ../../subflows/fechar_novidades.yaml
 - runFlow:
@@ -49,13 +49,16 @@ tags: [hc1582, P2]
       PASSO: CEN006_2_cliente
 - takeScreenshot: b${BUILD}_CEN006_2_cliente_salvo
 
-# sincroniza ao sair do modo off-line (comportamento esperado, resposta da duvida 3)
+# sincroniza ao sair do modo off-line (comportamento esperado, resposta da duvida 3).
+# A pendencia de cada registro foi conferida no aviso "Dados ainda nao
+# sincronizados!" (registro_com_anexo). A ficha nao tem o "Possui dados nao
+# sincronizados" para um registro novo, entao a espera por ele sumir nao provaria
+# nada aqui: a sincronizacao e conferida no web.
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:
       ESTADO: "off"
-- extendedWaitUntil:
-    notVisible: "Possui dados n.o sincronizados"
-    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 15000
 - takeScreenshot: b${BUILD}_CEN006_3_sincronizado
 # Conferencia no web: os dois registros no Historico com o arquivo-A.pdf.

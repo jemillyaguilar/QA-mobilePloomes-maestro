@@ -1,0 +1,33 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - com o app on-line, deixa o Anexo QA do registro (ONDE, FUNIL, NOME) com ARQUIVO"
+tags: [subflow]
+---
+# Estado inicial conhecido: cada cenario troca o anexo por um arquivo diferente
+# do que vai anexar off-line, para nao depender do que a execucao anterior
+# deixou salvo (revisao da PR #1). Usa as variaveis do chamador (ONDE, FUNIL,
+# NOME, ARQUIVO). Termina de volta na listagem (cliente) ou no funil (negocio).
+- runFlow: abrir_registro.yaml
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar (Cliente|neg.cio)"
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow:
+    file: anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+- tapOn:
+    id: header-right-button
+- waitForAnimationToEnd:
+    timeout: 8000
+# on-line: salvo direto, sem pendencia de sincronizacao (o aviso fica no topo
+# da ficha, por isso a conferencia vem antes de rolar ate o campo)
+- assertNotVisible: "Possui dados n.o sincronizados"
+- scrollUntilVisible:
+    element: ".*${ARQUIVO}.*"
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: header-left-button
+- waitForAnimationToEnd:
+    timeout: 5000

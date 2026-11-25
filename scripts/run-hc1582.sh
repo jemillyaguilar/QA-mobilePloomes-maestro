@@ -6,7 +6,9 @@
 #
 set -euo pipefail
 CEN="${1:?informe o cenario, ex.: CEN005}"
-FLOW=$(ls flows/hc1582/${CEN}_*.yaml)
+mapfile -t FLOWS < <(ls flows/hc1582/${CEN}_*.yaml 2>/dev/null)
+[[ ${#FLOWS[@]} -eq 1 ]] || { echo "ERRO: '${CEN}' deve casar com exatamente um flow (casou com ${#FLOWS[@]})" >&2; exit 1; }
+FLOW="${FLOWS[0]}"
 ENV_ARGS=()
 while IFS='=' read -r key value; do
   [[ -z "$key" || "$key" == \#* || "$value" == "<<"* ]] && continue
