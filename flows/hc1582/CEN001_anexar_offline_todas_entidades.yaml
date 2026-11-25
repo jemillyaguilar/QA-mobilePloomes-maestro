@@ -1,0 +1,122 @@
+appId: ${APP_ID}
+name: "CEN-001 - Anexar off-line em todas as entidades e sincronizar (CT-ANX-001..004, CT-SIN-001)"
+tags: [hc1582, P1, CRITICO]
+---
+# Pre: app logado na Conta Teste QA CPQ (login manual) e Contatos/Negocios
+# baixados em Menu > Configuracoes off-line.
+# Pre: o cliente ja tem relatorio-visita.pdf (CEN-005): off-line ele recebe o
+# arquivo-B.pdf, para a sincronizacao ser conferida por um arquivo diferente.
+# Executado passo a passo em 24/11/2026 (build 284): todos os passos passaram.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 60000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+
+# CT-ANX-001 - cliente off-line
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar Cliente"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_B}
+- tapOn:
+    id: header-right-button
+- extendedWaitUntil:
+    visible: "Possui dados n.o sincronizados"
+    timeout: 15000
+- assertVisible: ${ARQ_B}
+- takeScreenshot: b${BUILD}_CEN001_1_cliente_offline
+- tapOn:
+    id: header-left-button
+
+# CT-ANX-002 - negocio off-line (imagem + PDF)
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- runFlow:
+    file: ../../subflows/hc1582/anexar_imagem_e_pdf.yaml
+    env:
+      PASSO: CEN001_2_negocio
+- extendedWaitUntil:
+    visible: "Possui dados n.o sincronizados"
+    timeout: 15000
+- takeScreenshot: b${BUILD}_CEN001_2_negocio_offline
+
+# CT-ANX-004 - registro de interacao no negocio (Descricao e obrigatoria)
+- tapOn:
+    id: header-right-button
+- tapOn: "Registrar Intera.ão"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: imagem
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_PDF}
+- scrollUntilVisible:
+    element: "Descri..o"
+    direction: DOWN
+- tapOn:
+    point: "40%,75%"
+- inputText: ${TXT_REGISTRO}
+- hideKeyboard
+- tapOn:
+    id: header-right-button
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: b${BUILD}_CEN001_4_registro_salvo
+# volta para o funil (em modo de busca, sem header-left-button); o proximo
+# abrir_registro entra pela aba Negocios
+- tapOn:
+    id: header-left-button
+
+# CT-ANX-003 - card de processo off-line (o app nao pode fechar)
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_CARD}
+      NOME: ${CARD_NOME}
+- runFlow:
+    file: ../../subflows/hc1582/anexar_imagem_e_pdf.yaml
+    env:
+      PASSO: CEN001_3_card
+- extendedWaitUntil:
+    visible: "Possui dados n.o sincronizados"
+    timeout: 15000
+- takeScreenshot: b${BUILD}_CEN001_3_card_offline
+
+# CT-SIN-001 - volta a conexao. DUVIDA: o app nao sincroniza sozinho, precisa
+# de "Sair do modo offline" (a historia diz "sem acao do usuario").
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "off"
+- extendedWaitUntil:
+    notVisible: "Possui dados n.o sincronizados"
+    timeout: 60000
+- takeScreenshot: b${BUILD}_CEN001_5_sincronizado
+# Conferencia no Ploomes web (cada arquivo no registro certo) e manual:
+# o login no web derruba o login do app.

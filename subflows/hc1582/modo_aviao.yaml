@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - liga ou desliga o modo aviao (ESTADO=enabled|disabled)"
+tags: [subflow]
+---
+- setAirplaneMode: ${ESTADO}
+- waitForAnimationToEnd:
+    timeout: 5000

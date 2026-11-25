@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: "CEN-005 - Regressao do anexo online (CT-OBS-001)"
+tags: [hc1582, P1, CRITICO, regressao]
+---
+# Pre: app logado na Conta Teste QA CPQ (login manual), com internet.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 60000
+- runFlow: ../../subflows/fechar_novidades.yaml
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+- runFlow:
+    file: ../../subflows/hc1582/anexar_imagem_e_pdf.yaml
+    env:
+      PASSO: CEN005_cliente
+# de volta na ficha: os dois arquivos tem de aparecer nos campos
+- assertVisible: "Imagem QA.*"
+- assertVisible: ".*${ARQ_PDF}.*"
+- takeScreenshot: b${BUILD}_CEN005_cliente_salvo

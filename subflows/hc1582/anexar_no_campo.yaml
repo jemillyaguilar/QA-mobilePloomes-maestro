@@ -1,0 +1,71 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - escolhe um arquivo (TIPO=anexo, ARQUIVO, ATUAL opcional) ou a foto de teste (TIPO=imagem) no formulario aberto"
+tags: [subflow]
+---
+# Anexo: toca no campo ("Selecione um anexo..." ou o arquivo ATUAL, se ja tiver um)
+# > "Arquivos" > seletor do Android (DocumentsUI), arquivo pelo nome.
+- runFlow:
+    when:
+      true: ${TIPO == 'anexo' && (typeof ATUAL === 'undefined' || !ATUAL)}
+    commands:
+      # campo vazio mostra "Selecione um anexo..."; com arquivo salvo, toca no
+      # rotulo "Anexo QA" (sem ATUAL, o flow nao sabe o nome do arquivo atual)
+      - scrollUntilVisible:
+          element: "${TXT_CAMPO_ANEXO}"
+          direction: UP
+      - runFlow:
+          when:
+            notVisible: "Selecione um anexo..."
+          commands:
+            - tapOn: "${TXT_CAMPO_ANEXO}"
+      - runFlow:
+          when:
+            visible: "Selecione um anexo..."
+          commands:
+            - tapOn: "Selecione um anexo..."
+- runFlow:
+    when:
+      true: ${TIPO == 'anexo' && typeof ATUAL !== 'undefined' && !!ATUAL}
+    commands:
+      - scrollUntilVisible:
+          element: ${ATUAL}
+          direction: UP
+      - tapOn: ${ATUAL}
+- runFlow:
+    when:
+      true: ${TIPO == 'anexo'}
+    commands:
+      - tapOn: "Arquivos"
+      - extendedWaitUntil:
+          visible: ${ARQUIVO}
+          timeout: 15000
+      - tapOn: ${ARQUIVO}
+# Imagem: "Selecione uma imagem..." > "Escolher da galeria" > Photo Picker do Android.
+# O Photo Picker so mostra a data ("Photo taken on ..."): o aparelho deve ter
+# uma unica foto, a foto-visita.jpg (capturas de tela vao para /data/local/tmp).
+- runFlow:
+    when:
+      true: ${TIPO == 'imagem'}
+    commands:
+      # campo vazio mostra "Selecione uma imagem..."; com imagem salva, o toque
+      # no rotulo "Imagem QA" abre o mesmo menu (galeria/camera/Excluir imagem)
+      - scrollUntilVisible:
+          element: "${TXT_CAMPO_IMAGEM}"
+          direction: UP
+      - runFlow:
+          when:
+            notVisible: "Selecione uma imagem..."
+          commands:
+            - tapOn: "${TXT_CAMPO_IMAGEM}"
+      - runFlow:
+          when:
+            visible: "Selecione uma imagem..."
+          commands:
+            - tapOn: "Selecione uma imagem..."
+      - tapOn: "Escolher da galeria"
+      - extendedWaitUntil:
+          visible: "Photo taken on.*"
+          timeout: 15000
+      - tapOn: "Photo taken on.*"
+- waitForAnimationToEnd:
+    timeout: 5000

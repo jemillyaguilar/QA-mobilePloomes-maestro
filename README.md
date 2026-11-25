@@ -93,6 +93,34 @@ interpolar esse campo do header, fixe o valor literal em todos os arquivos:
 O mapa completo, com o motivo de cada um, está em
 [`docs/COBERTURA.md`](docs/COBERTURA.md).
 
+## Suíte HC-1582 — anexos off-line
+
+Cenários da história [HC-1582](https://ploomes.atlassian.net/browse/HC-1582)
+(anexar imagens e arquivos no modo off-line), da página
+[Cenários de automação — HC-1582](https://ploomes.atlassian.net/wiki/spaces/ENGPROD/pages/578158623).
+
+- **Build:** 9.15.4 (284), `config/env.284`. Roda só no AVD `Pixel_7_4k`
+  (páginas de 4 KB); no Pixel_7 de 16 KB o app fecha ao abrir.
+- **Conta:** Conta Teste QA CPQ (doccpq, produção). O login é manual e os
+  flows não limpam o estado do app.
+- **Pré-requisitos:**
+  - Baixar Contatos e Negócios em Menu > Configurações off-line.
+  - Copiar os arquivos de `assets/hc1582` para o aparelho:
+    `adb push assets/hc1582/. //sdcard/Download/`.
+  - O Photo Picker precisa ter uma única foto, a `foto-visita.jpg`.
+
+```bash
+MAESTRO=~/.maestro-cli/maestro/bin/maestro.bat ./scripts/run-hc1582.sh CEN001
+```
+
+| Cenário | CTs | Situação (25/11/2026) |
+| --- | --- | --- |
+| CEN001 | ANX-001..004, SIN-001 | passa; a sincronização só acontece com o toque em "Sair do modo offline" (dúvida 3) |
+| CEN002 | SIN-002 | passa |
+| CEN003 | SIN-003 | passa |
+| CEN004 | ERR-001, ERR-002 | bloqueado: falta a referência do online (tamanho máximo e mensagens) |
+| CEN005 | OBS-001 | passa |
+
 ## Pendências que travam execução
 
 1. **CT27 depende de decisão de produto** — sem Tirador na 263, qual

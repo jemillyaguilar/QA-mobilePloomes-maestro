@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+name: "CEN-004 - Limites de tamanho e tipo off-line (CT-ERR-001, CT-ERR-002) - BLOQUEADO"
+tags: [hc1582, P2, BORDA, bloqueado]
+---
+# BLOQUEADO: falta a referencia do online (tamanho maximo, tipos aceitos e
+# mensagens de recusa). Preencher TXT_RECUSA_TIPO / TXT_RECUSA_TAMANHO antes.
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: ${SEL_FAB_NOVO}
+    timeout: 30000
+- runFlow:
+    file: ../../subflows/hc1582/modo_aviao.yaml
+    env:
+      ESTADO: enabled
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: clientes
+      NOME: ${CLIENTE_NOME}
+- tapOn:
+    id: ${SEL_BTN_EDITAR}
+# CT-ERR-002: PDF no campo de imagem deve ser recusado como no online
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      CAMPO: ${TXT_CAMPO_IMAGEM}
+      OPCAO: ${TXT_PICKER_ARQUIVO}
+      ARQUIVO: ${ARQ_PDF}
+- assertVisible: ${TXT_RECUSA_TIPO}
+- runFlow:
+    file: ../../subflows/hc1582/modo_aviao.yaml
+    env:
+      ESTADO: disabled

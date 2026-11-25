@@ -1,0 +1,63 @@
+appId: ${APP_ID}
+name: "CEN-003 - Anexo off-line continua depois de fechar o app (CT-SIN-003)"
+tags: [hc1582, P2, BORDA]
+---
+# Executado em 24/11/2026 (build 284) no cliente, emendado ao CEN-002 (anexo
+# pendente relatorio-visita.pdf): fechar e reabrir em modo aviao manteve o login
+# e o anexo pendente; sincronizou ao sair do modo off-line. Passou.
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: tab-bar-button-clients
+    timeout: 60000
+- runFlow: ../../subflows/hc1582/garantir_online.yaml
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "on"
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- tapOn:
+    id: header-right-button
+- tapOn: "Editar neg.cio"
+- runFlow:
+    file: ../../subflows/hc1582/anexar_no_campo.yaml
+    env:
+      TIPO: anexo
+      ARQUIVO: ${ARQ_B}
+- tapOn:
+    id: header-right-button
+- extendedWaitUntil:
+    visible: ${ARQ_B}
+    timeout: 15000
+# fecha o app por completo e reabre sem limpar dados, ainda em modo aviao
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: "Ativar modo offline"
+    timeout: 60000
+- tapOn: "Ativar modo offline"
+- runFlow:
+    file: ../../subflows/hc1582/abrir_registro.yaml
+    env:
+      ONDE: negocios
+      FUNIL: ${FUNIL_NEGOCIO}
+      NOME: ${NEGOCIO_NOME}
+- assertVisible: "Possui dados n.o sincronizados"
+- assertVisible: ${ARQ_B}
+- takeScreenshot: b${BUILD}_CEN003_reaberto_offline
+- runFlow:
+    file: ../../subflows/hc1582/modo_offline.yaml
+    env:
+      ESTADO: "off"
+- extendedWaitUntil:
+    notVisible: "Possui dados n.o sincronizados"
+    timeout: 60000
