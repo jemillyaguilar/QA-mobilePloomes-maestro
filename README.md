@@ -125,15 +125,13 @@ MAESTRO=~/.maestro-cli/maestro/bin/maestro.bat ./scripts/run-hc1582.sh CEN001
   "Modo offline" do menu, "+" da seção Anexos, campo Descrição) só valem no
   Pixel_7_4k. Esses elementos não têm testID; o pedido ao time do app está
   em aberto.
-- **CEN004:** é um esqueleto com TODO. A tag `bloqueado` está em `excludeTags`
-  da `.maestro/config.yaml`, então ele não roda com a pasta inteira.
 
 | Cenário | CTs | Situação (25/11/2026) |
 | --- | --- | --- |
 | CEN001 | ANX-001..004, SIN-001 | passa (a sincronização acontece ao sair do modo off-line, que é o esperado) |
 | CEN002 | SIN-002 | passa |
 | CEN003 | SIN-003 | passa |
-| CEN004 | ERR-001, ERR-002 | bloqueado (esqueleto): falta a referência do online (tamanho máximo e mensagens) |
+| — | ERR-001, ERR-002 | sem flow: validados no modo online, manual (decisão da QA em 25/11/2026) |
 | CEN005 | OBS-001 | passa |
 | CEN006 | ANX-006 | passa (seção "Anexos" do registro de interação, no negócio e no cliente) |
 
