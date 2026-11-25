@@ -20,8 +20,8 @@ tags: [subflow]
       - extendedWaitUntil:
           visible: "Modo off-line est. ativo"
           timeout: 15000
-# Com a conexao de volta o app NAO sincroniza sozinho (24/11, build 284): mostra
-# "Conexao disponivel - Sair do modo offline" e so sincroniza depois do toque.
+# Com a conexao de volta o app mostra "Conexao disponivel - Sair do modo offline"
+# e sincroniza depois do toque: comportamento esperado (duvida 3, 25/11/2026).
 - runFlow:
     when:
       true: ${ESTADO == 'off'}

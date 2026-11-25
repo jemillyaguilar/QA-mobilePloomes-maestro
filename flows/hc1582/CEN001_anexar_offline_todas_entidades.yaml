@@ -108,8 +108,8 @@ tags: [hc1582, P1, CRITICO]
     timeout: 15000
 - takeScreenshot: b${BUILD}_CEN001_3_card_offline
 
-# CT-SIN-001 - volta a conexao. DUVIDA: o app nao sincroniza sozinho, precisa
-# de "Sair do modo offline" (a historia diz "sem acao do usuario").
+# CT-SIN-001 - volta a conexao. O app sincroniza ao sair do modo off-line
+# ("Sair do modo offline"): comportamento esperado (resposta da duvida 3, 25/11/2026).
 - runFlow:
     file: ../../subflows/hc1582/modo_offline.yaml
     env:

@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: "subflow HC-1582 - na ficha aberta, cria registro de interacao com ARQUIVO na secao Anexos (botao +)"
+tags: [subflow]
+---
+# A ficha do cliente e a do negocio nao tem aba "Anexos" (build 284). O CT-ANX-006
+# cobre a secao "Anexos" do registro de interacao (decisao da QA, 25/11/2026).
+- tapOn:
+    id: header-right-button
+- tapOn: "Registrar Intera.ão"
+- waitForAnimationToEnd
+# "+" da secao Anexos: sem id nem texto. Com o formulario rolado ate o fim e o
+# teclado ainda fechado, fica sempre em 90%,76%. Depois que o teclado abre o
+# layout muda, entao o "+" vem ANTES da Descricao.
+- scroll
+- scroll
+- scroll
+- assertVisible: "N.o h. anexos."
+- tapOn:
+    point: "90%,76%"
+- scrollUntilVisible:
+    element: ${ARQUIVO}
+    direction: DOWN
+    timeout: 15000
+- tapOn: ${ARQUIVO}
+- extendedWaitUntil:
+    visible: ${ARQUIVO}
+    timeout: 60000
+- assertNotVisible: "N.o h. anexos."
+# Descricao (obrigatoria na conta): o campo fica entre o rotulo e a secao Anexos
+- scrollUntilVisible:
+    element: "Descri..o"
+    direction: DOWN
+- tapOn:
+    below: "Descri..o"
+    above: "Anexos"
+- inputText: ${TXT_REGISTRO_ANEXOS}
+- assertVisible: ${TXT_REGISTRO_ANEXOS}
+- hideKeyboard
+- takeScreenshot: b${BUILD}_${PASSO}_antes_de_salvar
+- tapOn:
+    id: header-right-button
+- waitForAnimationToEnd:
+    timeout: 8000

@@ -115,11 +115,12 @@ MAESTRO=~/.maestro-cli/maestro/bin/maestro.bat ./scripts/run-hc1582.sh CEN001
 
 | Cenário | CTs | Situação (25/11/2026) |
 | --- | --- | --- |
-| CEN001 | ANX-001..004, SIN-001 | passa; a sincronização só acontece com o toque em "Sair do modo offline" (dúvida 3) |
+| CEN001 | ANX-001..004, SIN-001 | passa (a sincronização acontece ao sair do modo off-line, que é o esperado) |
 | CEN002 | SIN-002 | passa |
 | CEN003 | SIN-003 | passa |
 | CEN004 | ERR-001, ERR-002 | bloqueado: falta a referência do online (tamanho máximo e mensagens) |
 | CEN005 | OBS-001 | passa |
+| CEN006 | ANX-006 | passa (seção "Anexos" do registro de interação, no negócio e no cliente) |
 
 ## Pendências que travam execução
 
